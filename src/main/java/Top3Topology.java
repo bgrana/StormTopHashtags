@@ -1,8 +1,6 @@
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
 import backtype.storm.topology.TopologyBuilder;
-import backtype.storm.utils.Utils;
-import storm.kafka.KafkaSpout;
 
 /**
  * Created by ignacio on 16/12/15.
@@ -10,7 +8,7 @@ import storm.kafka.KafkaSpout;
 public class Top3Topology {
     static KafkaConsumerSpout kafkaSpout;
 
-    public static void Main(String[] args){
+    public static void main(String[] args){
         TopologyBuilder builder= new TopologyBuilder();
         kafkaSpout= new KafkaConsumerSpout();
         builder.setSpout("kafkaSpout", kafkaSpout);
