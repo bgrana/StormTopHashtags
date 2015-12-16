@@ -1,3 +1,5 @@
+package master2015.spouts;
+
 /**
  * Created by ignacio on 16/12/15.
  */

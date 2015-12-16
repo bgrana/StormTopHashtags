@@ -1,11 +1,15 @@
+package master2015;
+
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
 import backtype.storm.topology.TopologyBuilder;
+import master2015.bolts.TestBolt;
+import master2015.spouts.KafkaConsumerSpout;
 
 /**
  * Created by ignacio on 16/12/15.
  */
-public class Top3Topology {
+public class Top3App {
     static KafkaConsumerSpout kafkaSpout;
 
     public static void main(String[] args){

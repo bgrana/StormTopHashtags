@@ -1,3 +1,5 @@
+package master2015.spouts;
+
 import backtype.storm.spout.SchemeAsMultiScheme;
 import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.TopologyContext;
