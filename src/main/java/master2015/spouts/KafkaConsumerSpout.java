@@ -17,7 +17,7 @@ public class KafkaConsumerSpout extends BaseRichSpout implements KafkaConsumerSp
 
     private BrokerHosts hosts ;
     private SpoutConfig spoutConfig;
-    private KafkaSpout kafkaSpout = new KafkaSpout(spoutConfig);
+    private KafkaSpout kafkaSpout;
 
 
     public void nextTuple() {

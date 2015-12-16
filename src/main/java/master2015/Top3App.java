@@ -11,20 +11,37 @@ import master2015.spouts.KafkaConsumerSpout;
  */
 public class Top3App {
     static KafkaConsumerSpout kafkaSpout;
+    
+    private static String[] langList;
+    private static String zkURL;
+    private static String window;
+    private static String topologyName;
+    private static String outputDir;
 
     public static void main(String[] args){
+    	
+    	if (args.length != 5) {
+    		System.out.println("Wrong number of arguments");
+    		System.exit(1);
+    	}
+    	
+    	langList = args[0].split(",");
+    	zkURL = args[1];
+    	window = args[2];
+    	topologyName = args[3];
+    	outputDir = args[4];
+    	
         TopologyBuilder builder= new TopologyBuilder();
-        kafkaSpout= new KafkaConsumerSpout();
-        builder.setSpout("kafkaSpout", kafkaSpout);
-
-        //We have to edit this
-        builder.setBolt("bolt1", new TestBolt())
-                .localOrShuffleGrouping("kafkaSpout");
-
+        
+        for(String lang : langList) {
+        	builder.setSpout("spout-" + lang, new KafkaConsumerSpout());
+        	builder.setBolt("bolt-" + lang, new TestBolt())
+            .localOrShuffleGrouping("spout-" + lang);
+        }
 
         //Esto habría que cambiarlo, ya no es local mode
         LocalCluster cluster = new LocalCluster();
-        cluster.submitTopology("Top3Topology", new Config(), builder.createTopology());
+        cluster.submitTopology(topologyName, new Config(), builder.createTopology());
 
         //En teoria esto se queda funcionando para siempre.
 
