@@ -1,8 +1,8 @@
 package master2015.bolts;
 
-import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 import backtype.storm.task.OutputCollector;
@@ -29,10 +29,8 @@ public class FileWriterBolt extends BaseRichBolt {
 	public void prepare(@SuppressWarnings("rawtypes") Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
 		this.outputCollector = outputCollector;
 		try {
-			writer = new PrintWriter(filename, "UTF-8");
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (UnsupportedEncodingException e) {
+			writer = new PrintWriter(new FileWriter(filename, true));
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}

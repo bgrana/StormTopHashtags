@@ -19,7 +19,6 @@ import storm.kafka.ZkHosts;
  * Created by ignacio on 16/12/15.
  */
 public class Top3App {
-    static KafkaConsumerSpout kafkaSpout;
     
     private static String[] langList;
     private static String zkURL;
@@ -37,8 +36,8 @@ public class Top3App {
     	langList = args[0].split(",");
     	zkURL = args[1];
     	window = args[2].split(",");
-    	double size = Double.parseDouble(window[0]);
-    	double slide = Double.parseDouble(window[1]);
+    	long size = Long.parseLong(window[0]);
+    	long slide = Long.parseLong(window[1]);
     	topologyName = args[3];
     	outputDir = args[4];
     	
@@ -58,13 +57,13 @@ public class Top3App {
         		.localOrShuffleGrouping("spout-" + lang);
         	
         	builder.setBolt("count-" + lang, new CountBolt())
-        		.localOrShuffleGrouping("window-" + lang);
+        		.localOrShuffleGrouping("spout-" + lang);
         	
         	builder.setBolt("rank-" + lang, new RankBolt())
         		.localOrShuffleGrouping("count-" + lang);
         	
         	builder.setBolt("write-" + lang, new FileWriterBolt(lang + ".log"))
-        		.localOrShuffleGrouping("write-" + lang);
+        		.localOrShuffleGrouping("rank-" + lang);
         }
 
         //Esto habría que cambiarlo, ya no es local mode

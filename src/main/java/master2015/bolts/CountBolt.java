@@ -1,5 +1,7 @@
 package master2015.bolts;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import backtype.storm.task.OutputCollector;
@@ -17,23 +19,31 @@ public class CountBolt extends BaseRichBolt {
 	 */
 	private static final long serialVersionUID = -5166346793801758346L;
 	private OutputCollector outputCollector;
-	private Map<String, Integer> counter;
 
 	public void prepare(@SuppressWarnings("rawtypes") Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
 		this.outputCollector = outputCollector;
     }
 
     public void execute(Tuple tuple) {
-    	String hashtag = (String) tuple.getValueByField("hashtag");
-    	Integer count = counter.get(hashtag);
-    	if (count == null){
-    		count = 0;
+
+    	@SuppressWarnings("unchecked")
+		Collection<String> hashtags = (Collection<String>) tuple.getValueByField("hashtags");
+    	Integer timestamp = (Integer) tuple.getValueByField("timestamp");
+    	Map<String, Integer> frequencies = new HashMap<String, Integer>();
+    	Integer count = 0;
+    	
+    	for (String hashtag : hashtags) {
+    		count = frequencies.get(hashtag);
+    		if (count == null) {
+    			count = 0;
+    		}
+    		frequencies.put(hashtag, ++count);
     	}
-    	counter.put(hashtag, ++count);
-    	outputCollector.emit(new Values(hashtag, count));
+    	
+    	outputCollector.emit(new Values(frequencies, timestamp));
     }
 
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-    	outputFieldsDeclarer.declare(new Fields("hashtag", "count"));
+    	outputFieldsDeclarer.declare(new Fields("frequencies", "timestamp"));
     }
 }
