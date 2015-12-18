@@ -57,7 +57,7 @@ public class Top3App {
         		.localOrShuffleGrouping("spout-" + lang);
         	
         	builder.setBolt("count-" + lang, new CountBolt())
-        		.localOrShuffleGrouping("spout-" + lang);
+        		.localOrShuffleGrouping("window-" + lang);
         	
         	builder.setBolt("rank-" + lang, new RankBolt())
         		.localOrShuffleGrouping("count-" + lang);

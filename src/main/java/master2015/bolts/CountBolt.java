@@ -28,7 +28,7 @@ public class CountBolt extends BaseRichBolt {
 
     	@SuppressWarnings("unchecked")
 		Collection<String> hashtags = (Collection<String>) tuple.getValueByField("hashtags");
-    	Integer timestamp = (Integer) tuple.getValueByField("timestamp");
+    	Long timestamp = (Long) tuple.getValueByField("timestamp");
     	Map<String, Integer> frequencies = new HashMap<String, Integer>();
     	Integer count = 0;
     	
