@@ -39,7 +39,7 @@ public class CountBolt extends BaseRichBolt {
     		}
     		frequencies.put(hashtag, ++count);
     	}
-    	
+    	//System.out.println(frequencies.toString());
     	outputCollector.emit(new Values(frequencies, timestamp));
     }
 

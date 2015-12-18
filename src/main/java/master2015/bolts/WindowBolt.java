@@ -1,9 +1,6 @@
 package master2015.bolts;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.TreeMap;
-
+import java.util.*;
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
@@ -23,13 +20,13 @@ public class WindowBolt extends BaseRichBolt {
 	private long ts0;
 
 	//List related
-	private TreeMap<Long,String> window;
+	private TreeMap<Long,List<String>> window;
 
 	public WindowBolt(long size, long slide) {
 		this.size = size;
 		this.slide = slide;
 		this.count = 0;
-		this.window = new TreeMap<Long,String>();
+		this.window = new TreeMap<Long,List<String>>();
 	}
 
 	public void prepare(@SuppressWarnings("rawtypes") Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
@@ -45,22 +42,30 @@ public class WindowBolt extends BaseRichBolt {
 
 		//TODO remove, debug
 		//System.out.println("Hashtag: "+ hashtag + ", FIXED_TS:" + ts);
-
-		window.put(ts, hashtag);
+		List<String> hashtags = window.get(ts);
+		if(hashtags == null){
+			hashtags = new ArrayList<String>(71);
+			window.put(ts,hashtags);
+		}
+		hashtags.add(hashtag);
 
 		if (ts > count + size){ //Send the window to the next bolt
+			Long key0 = window.higherKey(count);
+			Long key1 = window.lowerKey(count+size);
 			count = count + slide;
-			Long key0 = window.firstKey();
-			Long key1 = window.lowerKey(ts);
 			if( key0 != null && key1 != null) {
-				Collection submap = window.subMap(window.firstKey(), window.lowerKey(ts)).values();
+				Collection<List<String>> submap = window.subMap(key0, key1).values();
 				if(submap.size()>0){
-					collector.emit( new Values( count * 1000, submap ) );
+					LinkedList<String> totalColl = new LinkedList<String>();
+					for (List hs_list : submap){
+						 totalColl.addAll(hs_list);
+					}
+					collector.emit( new Values( count * 1000, totalColl ) );
 					//TODO remove, debug
-					//System.out.println( count * 1000 + "," + submap );
+					//System.out.println( count * 1000 + "," + totalColl );
 				}
 			}
-			window = new TreeMap<Long,String>(window.subMap(ts,window.lastKey()));
+			window = new TreeMap<Long,List<String>>(window.subMap(window.higherKey(count),window.lastKey()));
 		}
 	}
 

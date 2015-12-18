@@ -67,9 +67,9 @@ public class Top3App {
         		.localOrShuffleGrouping("rank-" + lang);
         }
 
-        //Esto habría que cambiarlo, ya no es local mode
-//        LocalCluster cluster = new LocalCluster();
-//        cluster.submitTopology(topologyName, new Config(), builder.createTopology());
+		//TODO Comment, only for testing purposes.
+//		  LocalCluster cluster = new LocalCluster();
+//		  cluster.submitTopology(topologyName, new Config(), builder.createTopology());
 
         Config config = new Config();
         config.setNumWorkers(2);
@@ -82,9 +82,5 @@ public class Top3App {
         } catch (AuthorizationException e) {
 			e.printStackTrace();
 		}
-
-
-		//En teoria esto se queda funcionando para siempre.
-
     }
 }

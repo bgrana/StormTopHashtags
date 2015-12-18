@@ -35,9 +35,9 @@ public class RankBolt extends BaseRichBolt {
 				int aV = frequencies.get(a);
 				int bV = frequencies.get(b);
 				if ( aV > bV) {
-					return -1;
-				} else if ( aV < bV){
 					return 1;
+				} else if ( aV < bV){
+					return -1;
 				} else {
 					return -a.compareTo(b);
 				}
@@ -69,6 +69,8 @@ public class RankBolt extends BaseRichBolt {
     	Long timestamp = (Long) tuple.getValueByField("timestamp");
     	@SuppressWarnings("unchecked")
 		Map<String, Integer> frequencies = (HashMap<String, Integer>) tuple.getValueByField("frequencies");
+		//TODO remove, debug
+		//System.out.println(frequencies.toString());
     	String[] top3Keys = getTop3(frequencies);
 		String line = timestamp + "," + lang + "," + top3Keys[0] + "," + top3Keys[1] + "," + top3Keys[2];
 		outputCollector.emit(new Values(line));
