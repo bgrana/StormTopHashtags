@@ -75,9 +75,27 @@ public class RankBolt extends BaseRichBolt {
 	}
 	
 	private String format(String[] top3Keys, Map<String, Integer> frequencies) {
-		return top3Keys[0] + "," + frequencies.get(top3Keys[0]) + ","
-				+ top3Keys[1] + "," + frequencies.get(top3Keys[1]) + ","
-				+ top3Keys[2] + "," + frequencies.get(top3Keys[2]);
+		String formattedAns = "";
+
+		if( top3Keys[0] == "" || top3Keys[0] == null){
+			formattedAns += "null,0,";
+		}else{
+			formattedAns += top3Keys[0] + "," + frequencies.get(top3Keys[0]) + ",";
+		}
+
+		if(top3Keys[1] == "" || top3Keys[1] == null){
+			formattedAns += "null,0,";
+
+		}else{
+			formattedAns += top3Keys[1] + "," + frequencies.get(top3Keys[1]) + ",";
+		}
+
+		if(top3Keys[2] == "" || top3Keys[2] == null){
+			formattedAns += "null,0,";
+		}else{
+			formattedAns += top3Keys[2] + "," + frequencies.get(top3Keys[2]);
+		}
+		return formattedAns;
 	}
 
 	public void prepare(@SuppressWarnings("rawtypes") Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
@@ -85,7 +103,6 @@ public class RankBolt extends BaseRichBolt {
     }
 
     public void execute(Tuple tuple) {
-    	
     	Long timestamp = (Long) tuple.getValueByField("timestamp");
     	@SuppressWarnings("unchecked")
 		Map<String, Integer> frequencies = (HashMap<String, Integer>) tuple.getValueByField("frequencies");

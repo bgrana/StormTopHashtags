@@ -19,6 +19,7 @@ import storm.kafka.ZkHosts;
  * Created by ignacio on 16/12/15.
  */
 public class Top3App {
+    public final static String GROUP_ID ="04";
     
     private static String[] langList;
     private static String zkURL;
@@ -62,7 +63,7 @@ public class Top3App {
         	builder.setBolt("rank-" + lang, new RankBolt(lang))
         		.localOrShuffleGrouping("count-" + lang);
         	
-        	builder.setBolt("write-" + lang, new FileWriterBolt(lang + "_04.log"))
+        	builder.setBolt("write-" + lang, new FileWriterBolt(lang + "_"+ GROUP_ID + ".log"))
         		.localOrShuffleGrouping("rank-" + lang);
         }
 

@@ -50,12 +50,16 @@ public class WindowBolt extends BaseRichBolt {
 
 		if (ts > count + size){ //Send the window to the next bolt
 			count = count + slide;
-			Collection submap = window.subMap(window.firstKey(), window.lowerKey(ts)).values();
-			collector.emit( new Values( count * 1000, submap ) );
-
-			//TODO remove, debug
-			System.out.println( count * 1000 + "," + submap );
-
+			Long key0 = window.firstKey();
+			Long key1 = window.lowerKey(ts);
+			if( key0 != null && key1 != null) {
+				Collection submap = window.subMap(window.firstKey(), window.lowerKey(ts)).values();
+				if(submap.size()>0){
+					collector.emit( new Values( count * 1000, submap ) );
+					//TODO remove, debug
+					System.out.println( count * 1000 + "," + submap );
+				}
+			}
 			window = new TreeMap<Long,String>(window.subMap(ts,window.lastKey()));
 		}
 	}
