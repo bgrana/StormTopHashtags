@@ -3,7 +3,11 @@ package master2015;
 import java.util.UUID;
 
 import backtype.storm.Config;
-import backtype.storm.LocalCluster;
+//import backtype.storm.LocalCluster;
+import backtype.storm.StormSubmitter;
+import backtype.storm.generated.AlreadyAliveException;
+import backtype.storm.generated.AuthorizationException;
+import backtype.storm.generated.InvalidTopologyException;
 import backtype.storm.spout.SchemeAsMultiScheme;
 import backtype.storm.topology.TopologyBuilder;
 import master2015.bolts.CountBolt;
@@ -20,12 +24,8 @@ import storm.kafka.ZkHosts;
  */
 public class Top3App {
     public final static String GROUP_ID ="04";
-    
-    private static String[] langList;
-    private static String zkURL;
-    private static String[] window;
-    private static String topologyName;
-    private static String outputDir;
+
+	private static String outputDir;
 
     public static void main(String[] args){
     	
@@ -33,13 +33,13 @@ public class Top3App {
     		System.out.println("Wrong number of arguments");
     		System.exit(1);
     	}
-    	
-    	langList = args[0].split(",");
-    	zkURL = args[1];
-    	window = args[2].split(",");
+
+		String[] langList = args[0].split(",");
+		String zkURL = args[1];
+		String[] window = args[2].split(",");
     	long size = Long.parseLong(window[0]);
     	long slide = Long.parseLong(window[1]);
-    	topologyName = args[3];
+		String topologyName = args[3];
     	outputDir = args[4];
     	
         TopologyBuilder builder= new TopologyBuilder();
@@ -63,15 +63,28 @@ public class Top3App {
         	builder.setBolt("rank-" + lang, new RankBolt(lang))
         		.localOrShuffleGrouping("count-" + lang);
         	
-        	builder.setBolt("write-" + lang, new FileWriterBolt(lang + "_"+ GROUP_ID + ".log"))
+        	builder.setBolt("write-" + lang, new FileWriterBolt(outputDir,lang + "_"+ GROUP_ID + ".log"))
         		.localOrShuffleGrouping("rank-" + lang);
         }
 
         //Esto habría que cambiarlo, ya no es local mode
-        LocalCluster cluster = new LocalCluster();
-        cluster.submitTopology(topologyName, new Config(), builder.createTopology());
+//        LocalCluster cluster = new LocalCluster();
+//        cluster.submitTopology(topologyName, new Config(), builder.createTopology());
 
-        //En teoria esto se queda funcionando para siempre.
+        Config config = new Config();
+        config.setNumWorkers(2);
+        try {
+            StormSubmitter.submitTopology(topologyName, config, builder.createTopology());
+        } catch (AlreadyAliveException e) {
+            e.printStackTrace();
+        } catch (InvalidTopologyException e) {
+            e.printStackTrace();
+        } catch (AuthorizationException e) {
+			e.printStackTrace();
+		}
+
+
+		//En teoria esto se queda funcionando para siempre.
 
     }
 }

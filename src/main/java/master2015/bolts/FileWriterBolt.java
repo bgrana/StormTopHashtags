@@ -21,15 +21,17 @@ public class FileWriterBolt extends BaseRichBolt {
 	private OutputCollector outputCollector;
 
 	private String filename;
+	private String dir;
 
-	public FileWriterBolt(String filename){
+	public FileWriterBolt( String dir, String filename){
 		this.filename = filename;
+		this.dir = dir;
 	}
 
 	public void prepare(@SuppressWarnings("rawtypes") Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
 		this.outputCollector = outputCollector;
 		try {
-			writer = new PrintWriter(new FileWriter(filename, true));
+			writer = new PrintWriter(new FileWriter(dir+ "/" + filename, true));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
