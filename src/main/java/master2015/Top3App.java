@@ -59,10 +59,10 @@ public class Top3App {
         	builder.setBolt("count-" + lang, new CountBolt())
         		.localOrShuffleGrouping("window-" + lang);
         	
-        	builder.setBolt("rank-" + lang, new RankBolt())
+        	builder.setBolt("rank-" + lang, new RankBolt(lang))
         		.localOrShuffleGrouping("count-" + lang);
         	
-        	builder.setBolt("write-" + lang, new FileWriterBolt(lang + ".log"))
+        	builder.setBolt("write-" + lang, new FileWriterBolt(lang + "_04.log"))
         		.localOrShuffleGrouping("rank-" + lang);
         }
 

@@ -36,7 +36,7 @@ public class FileWriterBolt extends BaseRichBolt {
 	}
 
 	public void execute(Tuple tuple) {
-		writer.println(tuple);
+		writer.println(tuple.getValueByField("line"));
 		writer.flush();
 		outputCollector.ack(tuple);
 

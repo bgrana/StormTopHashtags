@@ -18,6 +18,11 @@ public class RankBolt extends BaseRichBolt {
 	 */
 	private static final long serialVersionUID = -9130467237351920234L;
 	private OutputCollector outputCollector;
+	private String lang;
+	
+	public RankBolt(String lang) {
+		this.lang = lang;
+	}
 	
 	private String[] getTop3(Map<String, Integer> frequencies) {
 		
@@ -47,7 +52,7 @@ public class RankBolt extends BaseRichBolt {
 				}
 			}
 			else if (secondFreq <= keyFreq) {
-				if (firstFreq == keyFreq && key.compareTo(first) < 0) {
+				if (secondFreq == keyFreq && key.compareTo(second) < 0) {
 					third = second;
 					second = key;
 				}
@@ -57,7 +62,7 @@ public class RankBolt extends BaseRichBolt {
 				}
 			}
 			else if (thirdFreq <= keyFreq) {
-				if (firstFreq == keyFreq && key.compareTo(first) < 0) {
+				if (thirdFreq == keyFreq && key.compareTo(third) < 0) {
 					third = second;
 					second = key;
 				}
@@ -81,11 +86,11 @@ public class RankBolt extends BaseRichBolt {
 
     public void execute(Tuple tuple) {
     	
-    	Integer timestamp = (Integer) tuple.getValueByField("timestamp");
+    	Long timestamp = (Long) tuple.getValueByField("timestamp");
     	@SuppressWarnings("unchecked")
 		Map<String, Integer> frequencies = (HashMap<String, Integer>) tuple.getValueByField("frequencies");
     	String[] top3Keys = getTop3(frequencies);
-    	String line = timestamp + "," + format(top3Keys, frequencies);
+    	String line = timestamp + "," + lang + "," + format(top3Keys, frequencies);
     	outputCollector.emit(new Values(line));
     }
 
