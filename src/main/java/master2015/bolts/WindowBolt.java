@@ -57,7 +57,7 @@ public class WindowBolt extends BaseRichBolt {
 				if(submap.size()>0){
 					collector.emit( new Values( count * 1000, submap ) );
 					//TODO remove, debug
-					System.out.println( count * 1000 + "," + submap );
+					//System.out.println( count * 1000 + "," + submap );
 				}
 			}
 			window = new TreeMap<Long,String>(window.subMap(ts,window.lastKey()));

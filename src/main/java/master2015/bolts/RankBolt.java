@@ -1,7 +1,9 @@
 package master2015.bolts;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
@@ -10,6 +12,7 @@ import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
+import scala.Int;
 
 public class RankBolt extends BaseRichBolt {
 
@@ -23,79 +26,39 @@ public class RankBolt extends BaseRichBolt {
 	public RankBolt(String lang) {
 		this.lang = lang;
 	}
-	
-	private String[] getTop3(Map<String, Integer> frequencies) {
-		
-		String first = "";
-		String second = "";
-		String third = "";
-		Integer firstFreq, secondFreq, thirdFreq, keyFreq;
 
-		for (String key : frequencies.keySet()) {
-			firstFreq = frequencies.get(first);
-			secondFreq = frequencies.get(second);
-			thirdFreq = frequencies.get(third);
-			keyFreq = frequencies.get(key);
-			
-			if (firstFreq == null) {
-				first = key;
-			}			
-			else if (firstFreq <= keyFreq) {
-				if (firstFreq == keyFreq && key.compareTo(first) < 0) {
-					third = second;
-					second = key;
-				}
-				else {
-					third = second;
-					second = first;
-					first = key;
+	private String[] getTop3(final Map<String, Integer> frequencies){
+		String[] top3 = new String[3];
+
+		Comparator comp = new Comparator<String>() {
+			public int compare(String a, String b) {
+				int aV = frequencies.get(a);
+				int bV = frequencies.get(b);
+				if ( aV > bV) {
+					return -1;
+				} else if ( aV < bV){
+					return 1;
+				} else {
+					return -a.compareTo(b);
 				}
 			}
-			else if (secondFreq <= keyFreq) {
-				if (secondFreq == keyFreq && key.compareTo(second) < 0) {
-					third = second;
-					second = key;
-				}
-				else {
-					third = second;
-					second = key;
-				}
-			}
-			else if (thirdFreq <= keyFreq) {
-				if (thirdFreq == keyFreq && key.compareTo(third) < 0) {
-					third = second;
-					second = key;
-				}
-				else {
-					third = key;
-				}
+		};
+		TreeMap<String,Integer> sortedMap = new TreeMap<String,Integer>(comp);
+		sortedMap.putAll(frequencies);
+
+		Map.Entry<String, Integer> entry;
+		for( int i = 0; i < top3.length; i++ ){
+			entry = sortedMap.pollLastEntry();
+			if(entry != null && entry.getKey() != "" && entry.getKey() != null ){
+				top3[i] = entry.getKey() + "," + entry.getValue();
+			}else{
+				top3[i] = "null,0";
 			}
 		}
-		return new String[]{first, second, third};
-	}
-	
-	private String format(String[] top3Keys, Map<String, Integer> frequencies) {
-		String formattedAns = "";
+		//TODO debug, remove
+		//System.out.print(top3[0] + "," + top3[1] + "," + top3[2]);
+		return top3;
 
-		if( top3Keys[0] == "" || top3Keys[0] == null){
-			formattedAns += "null,0,";
-		}else{
-			formattedAns += top3Keys[0] + "," + frequencies.get(top3Keys[0]) + ",";
-		}
-
-		if(top3Keys[1] == "" || top3Keys[1] == null){
-			formattedAns += "null,0,";
-
-		}else{
-			formattedAns += top3Keys[1] + "," + frequencies.get(top3Keys[1]) + ",";
-		}
-
-		if(top3Keys[2] == "" || top3Keys[2] == null){
-			formattedAns += "null,0,";
-		}else{
-			formattedAns += top3Keys[2] + "," + frequencies.get(top3Keys[2]);
-		}
-		return formattedAns;
 	}
 
 	public void prepare(@SuppressWarnings("rawtypes") Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
@@ -107,8 +70,8 @@ public class RankBolt extends BaseRichBolt {
     	@SuppressWarnings("unchecked")
 		Map<String, Integer> frequencies = (HashMap<String, Integer>) tuple.getValueByField("frequencies");
     	String[] top3Keys = getTop3(frequencies);
-    	String line = timestamp + "," + lang + "," + format(top3Keys, frequencies);
-    	outputCollector.emit(new Values(line));
+		String line = timestamp + "," + lang + "," + top3Keys[0] + "," + top3Keys[1] + "," + top3Keys[2];
+		outputCollector.emit(new Values(line));
     }
 
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {

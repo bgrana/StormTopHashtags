@@ -10,13 +10,13 @@ import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FileWriterBolt extends BaseRichBolt {
-
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 4493727735986580186L;
+	Logger logger = LoggerFactory.getLogger(FileWriterBolt.class);
+
 	private PrintWriter writer;
 	private OutputCollector outputCollector;
 
@@ -37,6 +37,7 @@ public class FileWriterBolt extends BaseRichBolt {
 
 	public void execute(Tuple tuple) {
 		writer.println(tuple.getValueByField("line"));
+		logger.info(tuple.getValueByField("line").toString());
 		writer.flush();
 		outputCollector.ack(tuple);
 
