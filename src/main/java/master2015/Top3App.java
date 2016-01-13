@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import backtype.storm.Config;
 //import backtype.storm.LocalCluster;
+import backtype.storm.LocalCluster;
 import backtype.storm.StormSubmitter;
 import backtype.storm.generated.AlreadyAliveException;
 import backtype.storm.generated.AuthorizationException;
@@ -25,9 +26,7 @@ import storm.kafka.ZkHosts;
 public class Top3App {
     public final static String GROUP_ID ="04";
 
-	private static String outputDir;
-
-    public static void main(String[] args){
+	public static void main(String[] args){
     	
     	if (args.length != 5) {
     		System.out.println("Wrong number of arguments");
@@ -40,7 +39,7 @@ public class Top3App {
     	long size = Long.parseLong(window[0]);
     	long slide = Long.parseLong(window[1]);
 		String topologyName = args[3];
-    	outputDir = args[4];
+		String outputDir = args[4];
     	
         TopologyBuilder builder= new TopologyBuilder();
         ZkHosts hosts;
@@ -49,9 +48,10 @@ public class Top3App {
         for(String lang : langList) {
 
         	hosts = new ZkHosts(zkURL);
-        	spoutConfig = new SpoutConfig(hosts, lang, "/" + lang, UUID.randomUUID().toString());
+        	spoutConfig = new SpoutConfig(hosts, lang, "/" + lang, "spout-" + lang + "_04");
         	spoutConfig.scheme = new SchemeAsMultiScheme(new StringScheme());
-        	
+			spoutConfig.ignoreZkOffsets=false;
+
         	builder.setSpout("spout-" + lang, new KafkaSpout(spoutConfig));
         	
         	builder.setBolt("window-" + lang, new WindowBolt(size, slide))

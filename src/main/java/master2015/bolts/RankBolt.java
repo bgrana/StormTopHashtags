@@ -1,5 +1,6 @@
 package master2015.bolts;
 
+import java.text.Collator;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,6 +13,7 @@ import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
+import master2015.utils.SerializableCollator;
 import scala.Int;
 
 public class RankBolt extends BaseRichBolt {
@@ -22,14 +24,15 @@ public class RankBolt extends BaseRichBolt {
 	private static final long serialVersionUID = -9130467237351920234L;
 	private OutputCollector outputCollector;
 	private String lang;
-	
+	private SerializableCollator coll; //
+
 	public RankBolt(String lang) {
 		this.lang = lang;
+		coll = new SerializableCollator();
 	}
 
 	private String[] getTop3(final Map<String, Integer> frequencies){
 		String[] top3 = new String[3];
-
 		Comparator comp = new Comparator<String>() {
 			public int compare(String a, String b) {
 				int aV = frequencies.get(a);
@@ -39,10 +42,11 @@ public class RankBolt extends BaseRichBolt {
 				} else if ( aV < bV){
 					return -1;
 				} else {
-					return -a.compareTo(b);
+					return -coll.compare(a,b);
 				}
 			}
 		};
+
 		TreeMap<String,Integer> sortedMap = new TreeMap<String,Integer>(comp);
 		sortedMap.putAll(frequencies);
 
