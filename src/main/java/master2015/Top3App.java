@@ -29,7 +29,7 @@ public class Top3App {
 	public static void main(String[] args){
     	
     	if (args.length != 5) {
-    		System.out.println("Wrong number of arguments");
+    		System.err.println("Wrong number of arguments");
     		System.exit(1);
     	}
 
@@ -48,9 +48,11 @@ public class Top3App {
         for(String lang : langList) {
 
         	hosts = new ZkHosts(zkURL);
-        	spoutConfig = new SpoutConfig(hosts, lang, "/" + lang, "spout-" + lang + "_04");
+        	spoutConfig = new SpoutConfig(hosts, lang, "/" + lang, UUID.randomUUID().toString());
         	spoutConfig.scheme = new SchemeAsMultiScheme(new StringScheme());
 			spoutConfig.ignoreZkOffsets=false;
+			//spoutConfig.retryDelayMaxMs = 600 * 1000;
+			//spoutConfig.metricsTimeBucketSizeInSecs = 99999;
 
         	builder.setSpout("spout-" + lang, new KafkaSpout(spoutConfig));
         	
@@ -68,11 +70,13 @@ public class Top3App {
         }
 
 		//TODO Comment, only for testing purposes.
-//		  LocalCluster cluster = new LocalCluster();
-//		  cluster.submitTopology(topologyName, new Config(), builder.createTopology());
+		Config config = new Config();
+		config.setNumAckers(0);
+        config.setNumWorkers(2); //Only for remote cluster
+		//LocalCluster cluster = new LocalCluster();
+		//cluster.submitTopology(topologyName, config, builder.createTopology());
 
-        Config config = new Config();
-        config.setNumWorkers(2);
+
         try {
             StormSubmitter.submitTopology(topologyName, config, builder.createTopology());
         } catch (AlreadyAliveException e) {

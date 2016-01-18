@@ -36,6 +36,8 @@ public class WindowBolt extends BaseRichBolt {
 		//Parsing the tuple;
 		String[] array = tuple.getValueByField("str").toString().split(";");
 		long ts = Long.valueOf(array[0]) / 1000;
+		//TODO remove, debug
+		//System.out.println(ts);
 
 		if(!initialized){ //We have to fix the window
 			count =  (ts / slide) * slide; //We need to lose those decimals.
@@ -57,6 +59,8 @@ public class WindowBolt extends BaseRichBolt {
 		hashtags.add(hashtag);
 
 		if (ts > count + size - 1){ //Send the window to the next bolt
+			//TODO remove, debug
+			//System.out.println(count + "; " + ts);
 			Long key0 = window.ceilingKey(count);
 			Long key1 = window.lowerKey(count + size);
 			count = count + slide;
@@ -77,6 +81,7 @@ public class WindowBolt extends BaseRichBolt {
 				}
 			}
 			window = new TreeMap<Long,List<String>>(window.subMap(window.ceilingKey(count),true,window.lastKey(),true));
+			collector.ack(tuple);
 		}
 	}
 

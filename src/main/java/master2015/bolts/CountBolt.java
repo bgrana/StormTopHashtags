@@ -18,10 +18,10 @@ public class CountBolt extends BaseRichBolt {
 	 * 
 	 */
 	private static final long serialVersionUID = -5166346793801758346L;
-	private OutputCollector outputCollector;
+	private OutputCollector collector;
 
 	public void prepare(@SuppressWarnings("rawtypes") Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
-		this.outputCollector = outputCollector;
+		this.collector = outputCollector;
     }
 
     public void execute(Tuple tuple) {
@@ -40,8 +40,9 @@ public class CountBolt extends BaseRichBolt {
     		frequencies.put(hashtag, ++count);
     	}
     	//System.out.println(frequencies.toString());
-    	outputCollector.emit(new Values(frequencies, timestamp));
-    }
+    	collector.emit(new Values(frequencies, timestamp));
+		collector.ack(tuple);
+	}
 
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
     	outputFieldsDeclarer.declare(new Fields("frequencies", "timestamp"));

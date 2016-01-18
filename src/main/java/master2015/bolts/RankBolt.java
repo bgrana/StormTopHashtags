@@ -1,6 +1,5 @@
 package master2015.bolts;
 
-import java.text.Collator;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,7 +13,6 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import master2015.utils.SerializableCollator;
-import scala.Int;
 
 public class RankBolt extends BaseRichBolt {
 
@@ -22,7 +20,7 @@ public class RankBolt extends BaseRichBolt {
 	 * 
 	 */
 	private static final long serialVersionUID = -9130467237351920234L;
-	private OutputCollector outputCollector;
+	private OutputCollector collector;
 	private String lang;
 	private SerializableCollator coll; //
 
@@ -66,7 +64,7 @@ public class RankBolt extends BaseRichBolt {
 	}
 
 	public void prepare(@SuppressWarnings("rawtypes") Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
-		this.outputCollector = outputCollector;
+		this.collector = outputCollector;
     }
 
     public void execute(Tuple tuple) {
@@ -77,7 +75,8 @@ public class RankBolt extends BaseRichBolt {
 		//System.out.println(frequencies.toString());
     	String[] top3Keys = getTop3(frequencies);
 		String line = timestamp + "," + lang + "," + top3Keys[0] + "," + top3Keys[1] + "," + top3Keys[2];
-		outputCollector.emit(new Values(line));
+		collector.emit(new Values(line));
+		collector.ack(tuple);
     }
 
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {

@@ -18,7 +18,7 @@ public class FileWriterBolt extends BaseRichBolt {
 	Logger logger = LoggerFactory.getLogger(FileWriterBolt.class);
 
 	private PrintWriter writer;
-	private OutputCollector outputCollector;
+	private OutputCollector collector;
 
 	private String filename;
 	private String dir;
@@ -29,7 +29,7 @@ public class FileWriterBolt extends BaseRichBolt {
 	}
 
 	public void prepare(@SuppressWarnings("rawtypes") Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
-		this.outputCollector = outputCollector;
+		this.collector = outputCollector;
 		try {
 			writer = new PrintWriter(new FileWriter(dir+ "/" + filename, true));
 		} catch (IOException e) {
@@ -41,8 +41,7 @@ public class FileWriterBolt extends BaseRichBolt {
 		writer.println(tuple.getValueByField("line"));
 		logger.error(tuple.getValueByField("line").toString());
 		writer.flush();
-		outputCollector.ack(tuple);
-
+		collector.ack(tuple);
 	}
 
 	public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {

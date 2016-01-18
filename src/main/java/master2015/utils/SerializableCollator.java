@@ -14,7 +14,7 @@ public class SerializableCollator implements Comparator<String>, Serializable {
         initCollatorInstance();
     }
 
-    @Override
+
     public int compare(final String o1, final String o2) {
         return collatorInstance.compare(o1, o2);
     }
